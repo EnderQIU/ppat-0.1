@@ -284,7 +284,7 @@ class RuleTranslator:
         """
         Check whether pre_phonetic matches pre
         :param pre_phonetic: list e.g. ['AE', 'OW', 'O']
-        :param pre_pattern: list  e.g. ['^', 'AE', '@']
+        :param pre_pattern: tuple  e.g. ('$', 'AE', '@',)
                                     head <--------- tail
         :return: True if matched, else False
         """
@@ -293,6 +293,11 @@ class RuleTranslator:
         l_all_consonants = self.current_rule['phonetics']['consonants']
         l_all_vowels = self.current_rule['phonetics']['vowels']
         list(pre_pattern).reverse()
+        if not pre_phonetic:  # No phonetic in pre
+            if pre_pattern == ('$',):
+                return True
+            else:
+                return False
         index = len(pre_phonetic)
         for i in pre_pattern:
             if i == '@' and pre_phonetic[index] not in l_all_vowels:  # Any Vowels
@@ -310,7 +315,7 @@ class RuleTranslator:
         """
         Check whether pre_phonetic matches pre
         :param post_phonetic: list e.g. ['AE', 'OW', 'O']
-        :param post_pattern: list  e.g. ['AE', '@', '$']
+        :param post_pattern: tuple  e.g. ('AE', '@', '$',)
                                     head <--------- tail
         :return: True if matched, else False
         """
@@ -318,6 +323,11 @@ class RuleTranslator:
         assert isinstance(post_pattern, tuple) and len(post_pattern) != 0
         l_all_consonants = self.current_rule['phonetics']['consonants']
         l_all_vowels = self.current_rule['phonetics']['vowels']
+        if not post_phonetic:  # No phonetic in post
+            if post_pattern == ('^',):
+                return True
+            else:
+                return False
         index = 0
         for i in post_pattern:
             if i == '@' and post_phonetic[index] not in l_all_vowels:  # Any Vowels

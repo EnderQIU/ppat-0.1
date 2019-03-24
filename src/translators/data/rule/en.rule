@@ -85,6 +85,13 @@ IH NG (&                              = 17
 UW N | UH N | OW N (&                 = 18
 UH NG (&                              = 19
 
+AA N | AW N | AH NG | AO N | AA NG (^ = 14
+EH N | EH NG | ER N | AX N | AX NG (^ = 15
+IH N | IY N | IY R N | Y AX N (^      = 16
+IH NG (^                              = 17
+UW N | UH N | OW N (^                 = 18
+UH NG (^                              = 19
+
 // <Coordination = ChineseCharacters> pair
 // You can use the following python script to generate coordinates:
 //
@@ -611,6 +618,7 @@ UW | UH                               = 9
 Y UW | Y UH                           = 10
 AY                                    = 11
 AW                                    = 12
+
 AE N | AH N | AE NG                   = 13
 AA N | AW N | AH NG | AO N | AA NG (& = 14
 EH N | EH NG | ER N | AX N | AX NG (& = 15
@@ -618,6 +626,13 @@ IH N | IY N | IY R N | Y AX N (&      = 16
 IH NG (&                              = 17
 UW N | UH N | OW N (&                 = 18
 UH NG (&                              = 19
+
+AA N | AW N | AH NG | AO N | AA NG (^ = 14
+EH N | EH NG | ER N | AX N | AX NG (^ = 15
+IH N | IY N | IY R N | Y AX N (^      = 16
+IH NG (^                              = 17
+UW N | UH N | OW N (^                 = 18
+UH NG (^                              = 19
 
 .transliteration places
 
