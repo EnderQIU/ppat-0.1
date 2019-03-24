@@ -21,8 +21,8 @@ def lookup_or_predict(word):
     else:
         result = pred_model.predict(word).translate(remove_digits).split(' ')
     # Transform "OY" (written as "oi" in "boy") into a sequence of "OW" "IH"
-    pos = result.index('OY')
-    if pos:
+    while result.count('OY'):
+        pos = result.index('OY')
         result[pos: pos+1] = ('OW', 'IH')
     return result
 
