@@ -26,36 +26,36 @@ vowels     = AA|AE|AH|EY|ER|AX|IH|IY|AO|OW|UH|UW|UH|UW|AY|AW
 // Consonants row for translating people names
 .consonants people
 
-B         = 2
-P         = 3
-D         = 4
-T         = 5
-G         = 6
-K         = 7
-V         = 8
-W         = 9
-F         = 10
-Z | D Z   = 11
-T S       = 12
-S | DH TH = 13
-ZH        = 14
-SH        = 15
-JH        = 16
-CH        = 17
+B           = 2
+P           = 3
+D           = 4
+T           = 5
+G           = 6
+K           = 7
+V           = 8
+W           = 9
+F           = 10
+Z | D Z     = 11
+T S         = 12
+S | DH | TH = 13
+ZH          = 14
+SH          = 15
+JH          = 16
+CH          = 17
 
 // big_phoney uses HH instead of H/HH
 // >>> phonetic_dict.lookup('happy')
 // 'HH AE1 P IY0'
 
-HH        = 18
-M         = 19
-N         = 20
-L         = 21
-R         = 22
-Y         = 23
-G W       = 24
-K W       = 25
-H W       = 26
+HH          = 18
+M           = 19
+N           = 20
+L           = 21
+R           = 22
+Y           = 23
+G W         = 24
+K W         = 25
+H W         = 26
 
 // Vowels column for translating people names, may contain consonants
 .vowels people
@@ -572,31 +572,31 @@ out = post_process_people(in)
 
 .consonants places
 
-B         = 2
-P         = 3
-D         = 4
-T         = 5
-G         = 6
-K         = 7
-V         = 8
-W         = 9
-F         = 10
-Z | D Z   = 11
-T S       = 12
-S | DH TH = 13
-ZH        = 14
-SH        = 15
-JH        = 16
-CH        = 17
-HH        = 18
-M         = 19
-N         = 20
-L         = 21
-R         = 22
-Y         = 23
-G W       = 24
-K W       = 25
-H W       = 26
+B           = 2
+P           = 3
+D           = 4
+T           = 5
+G           = 6
+K           = 7
+V           = 8
+W           = 9
+F           = 10
+Z | D Z     = 11
+T S         = 12
+S | DH | TH = 13
+ZH          = 14
+SH          = 15
+JH          = 16
+CH          = 17
+HH          = 18
+M           = 19
+N           = 20
+L           = 21
+R           = 22
+Y           = 23
+G W         = 24
+K W         = 25
+H W         = 26
 
 .vowels places
 
