@@ -4,7 +4,7 @@ from big_phoney import PredictionModel, PhoneticDictionary
 
 pred_model = PredictionModel()
 phonetic_dict = PhoneticDictionary()
-remove_digits = str.maketrans('', '', digits)  # Remove digits from big_phoney's results
+remove_digits = str.maketrans('', '', digits)  # Remove stress levels from big_phoney's results
 
 
 def lookup_or_predict(word):
@@ -17,9 +17,14 @@ def lookup_or_predict(word):
     """
     result = phonetic_dict.lookup(word)
     if result is not None:
-        return result.translate(remove_digits).split(' ')
-    result = pred_model.predict(word)
-    return result.translate(remove_digits).split(' ')
+        result =  result.translate(remove_digits).split(' ')
+    else:
+        result = pred_model.predict(word).translate(remove_digits).split(' ')
+    # Transform "OY" (written as "oi" in "boy") into a sequence of "OW" "IH"
+    pos = result.index('OY')
+    if pos:
+        result[pos: pos+1] = ('OW', 'IH')
+    return result
 
 def post_process_people(word):
     """
