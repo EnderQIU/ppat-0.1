@@ -13,6 +13,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# ML models & pickle dict
+output/
+
 # C extensions
 *.so
 

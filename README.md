@@ -7,7 +7,16 @@ This project is aimed to translate the names automatedly but accurately. CLI mod
 
 ## Getting Started
 
-For running this project you need a Python 3.6/7 installed and the requisites are listed in `src/requirements.txt`.
+For running this project you need a Python 3 installed and the requisites are listed in `requirements.txt`.
+If you have an accelerated graphic card and have the develop environment properly configured,
+ you can install requirements from `requirements-gpu.txt`.
+You are suggested to have those environments listed below installed for the best experiences:
+
+- **Windows x86-64** with GPU platform: Python3.6(x86-64) tensorflow-gpu==1.12.0 CUDA==9.0 cuDNN==7.3.0.29
+- **Windows x86-64** CPU Only platform: Python3.6/7(x86-64) tensorflow==1.12.0/1.13.1
+- **Linux x86-64** with GPU platform: Python3.6/7(x86-64) tensorflow-gpu==1.12.0 CUDA==9.0 cuDNN==7.3.0.29
+- **Linux x86-64** CPU Only platform: Python3.6/7(x86-64) tensorflow==1.12.0/1.13.1
+- **MacOS 10.13 or Later**: Python3.6/7(x86-64) tensorflow==1.12.0/1.13.1
 
 ## Usage
 

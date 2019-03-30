@@ -1,30 +1,25 @@
 from string import digits
 
-from big_phoney import PredictionModel, PhoneticDictionary
+from translators.pep.api import PhoneticDictionary
 
-pred_model = PredictionModel()
 phonetic_dict = PhoneticDictionary()
 remove_digits = str.maketrans('', '', digits)  # Remove stress levels from big_phoney's results
 
 
 def lookup_or_predict(word):
     """
-    Lookup an english word's phonetics using big_phoney.
-    If not found, predict the phonetics as the ARPAbet classified
-     using big_phoney.PredictionModel
+    Lookup an english word's phonetics using PhoneticDictionary
+     or predict it using the trained model if not found.
     :param word:
     :return:
     """
-    result = phonetic_dict.lookup(word)
-    if result is not None:
-        result =  result.translate(remove_digits).split(' ')
-    else:
-        result = pred_model.predict(word).translate(remove_digits).split(' ')
+    result = phonetic_dict.lookup_or_predict(word).translate(remove_digits).split(' ')
     # Transform "OY" (written as "oi" in "boy") into a sequence of "OW" "IH"
     while result.count('OY'):
         pos = result.index('OY')
         result[pos: pos+1] = ('OW', 'IH')
     return result
+
 
 def post_process_people(word):
     """
@@ -37,6 +32,7 @@ def post_process_people(word):
     else:
         s_word = word
     return s_word
+
 
 def post_process_places(word):
     """
@@ -55,11 +51,9 @@ def post_process_places(word):
         s_word += word[1:]
     else:
         s_word = word
-    s1_word = ""
     if s_word.endswith('海'):
         s1_word = s_word[:-1]
         s1_word += '亥'
     else:
         s1_word = s_word
     return s1_word
-    
