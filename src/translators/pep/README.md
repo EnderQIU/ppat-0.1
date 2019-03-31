@@ -34,3 +34,18 @@ totalMemory: 8.00GiB freeMemory: 6.63GiB
 >>> p.predict('green')
 'G R IY1 N'
 ```
+
+## Introduction of Training Model
+
+### Dataset Preparation
+
+1. `cmudict-0.7b` and `cmudict-0.7b.symbols` stored in `dataset/` are downloaded from
+ [The CMU Pronouncing Dictionary]http://www.speech.cs.cmu.edu/cgi-bin/cmudict which has more than 100,000 words'
+ pronunciations.
+
+2. Filtering: Since some words are abbreviations, or have multiple correct pronunciations, we should pre-process those
+ into normal features. See details in [dictionary_generator.py](dictionary_generator.py).
+
+3. Tokenizing: Transform each char and symbol into ids (positive integers).
+
+4. One-hot-encoding the words' chars and pronunciations' symbols. Sequence the verticals to the same dimension.

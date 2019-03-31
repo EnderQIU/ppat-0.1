@@ -21,10 +21,18 @@ ALLOWED_SYMBOLS = [".", "-", "'"]
 ALLOWED_CHARS = ALLOWED_SYMBOLS + list(string.ascii_uppercase)
 START_PHONE_SYM = '\t'
 END_PHONE_SYM = '\n'
-MIN_CHAR_SEQ_LEN = 2
-MAX_CHAR_SEQ_LEN = 20
+MIN_WORD_LEN = 2
+MAX_WORD_LEN = 20
+MIN_PRONUNCIATION_LEN = 2
+MAX_PRONUNCIATION_LEN = 20
 MAX_PHONE_SEQ_LEN = 19
 # Phone Sequences are padded with Start/End tokens
 MAX_PADDED_PHONE_SEQ_LEN = MAX_PHONE_SEQ_LEN + 2
 
 # Model Config
+# Random (100*TEST_SCALE)% of all data will be used
+DATA_LIMIT_SCALE = 0.8
+# Ahead (100*TEST_SCALE)% of data (already suffled) will be used for training, and the rest for evaluating
+TRAIN_SCALE = 0.5
+# Random (100*TEST_SCALE)% of train data will be used for testing
+TEST_SCALE = 0.2

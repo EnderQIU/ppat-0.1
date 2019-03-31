@@ -1,94 +1,92 @@
-import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 from keras.callbacks import ModelCheckpoint, EarlyStopping
-from sklearn.model_selection import train_test_split
 
 from translators.pep.constants import PREDICTION_MODEL_WEIGHTS_PATH
+from translators.pep.data_provider import PronunciationDataProvider
 from translators.pep.model import PredictionModel
-from translators.pep.loader import PredictionModelDataLoader
-from translators.pep.utils import count_phonemes_with_emphasis
 
 
 class PredictionModelTrainer:
 
-    TEST_SIZE = 0.2
+    evaluate_size = 0.2
 
-    def __init__(self):
-        self.data_loader = PredictionModelDataLoader()
-        char_input, phone_input, phone_output = self.data_loader.load_training_examples()
-        self.char_input_train, self.char_input_test = self._train_test_split(char_input)
-        self.phone_input_train, self.phone_input_test = self._train_test_split(phone_input)
-        self.phone_output_train, self.phone_output_test = self._train_test_split(phone_output)
+    def __init__(self, _model):
+        self.data_provider = PronunciationDataProvider()
+        self.model = _model
+        self.train_history = None
+        self.x_train = None
+        self.y_train = None
 
-    def _train_test_split(self, data):
-        return train_test_split(data, test_size=self.TEST_SIZE, random_state=42)
+    def train(self,
+              loss='categorical_crossentropy',
+              optimizer='adam',
+              monitor='val_loss',
+              patience=3,
+              batch_size=100,
+              epochs=100,
+              check_point_verbose=1,
+              fit_verbose=2,
+              validation_split=0.2,
+              ):
+        self.model.model.compile(loss=loss, optimizer=optimizer)
 
-    def train(self, prediction_model, weights_path, validation_size=0.2, epochs=100):
-        h0 = np.zeros((self.char_input_train.shape[0], prediction_model.hidden_nodes))
-        c0 = np.zeros((self.char_input_train.shape[0], prediction_model.hidden_nodes))
-        inputs = list(self.phone_input_train.swapaxes(0, 1))
-        outputs = list(self.phone_output_train.swapaxes(0, 1))
+        self.x_train, self.y_train = self.data_provider.get_train()
+        checkpoint = ModelCheckpoint(filepath=PREDICTION_MODEL_WEIGHTS_PATH,
+                                     verbose=check_point_verbose,
+                                     save_best_only=True)
+        stopper = EarlyStopping(monitor=monitor, patience=patience)
+        callbacks = [checkpoint, stopper]
+        self.train_history = self.model.model.fit(self.x_train,
+                                                  self.y_train,
+                                                  batch_size=batch_size,
+                                                  epochs=epochs,
+                                                  verbose=fit_verbose,
+                                                  validation_split=validation_split,
+                                                  callbacks=callbacks,
+                                                  )
 
-        callbacks = []
-        if validation_size > 0:
-            checkpointer = ModelCheckpoint(filepath=weights_path, verbose=1, save_best_only=True)
-            stopper = EarlyStopping(monitor='val_loss', patience=3)
-            callbacks = [checkpointer, stopper]
+    def graph_train_history(self, train, validation):
+        if not self.train_history:
+            print('Model not trained! Call train() first!')
+        plt.plot(self.train_history.history[train])
+        plt.plot(self.train_history.history[validation])
+        plt.title('Train History')
+        plt.ylabel(train)
+        plt.xlabel('Epoch')
+        plt.legend(['train', 'validation'], loc='upper left')
+        plt.show()
 
-        prediction_model.training_model.compile(optimizer='adam', loss='categorical_crossentropy')
-        prediction_model.training_model.fit([self.char_input_train, h0, c0] + inputs, outputs,
-                                            batch_size=256,
-                                            epochs=epochs,
-                                            validation_split=validation_size,
-                                            callbacks=callbacks)
-
-        if validation_size == 0:
-            prediction_model.training_model.save_weights(weights_path)
-
-    def is_correct(self, word, test_pronunciation):
-        correct_pronuns = self.data_loader.pronunciations(word)
-        for correct_pronun in correct_pronuns:
-            if test_pronunciation == correct_pronun:
-                return True
-        return False
-
-    def is_syllable_count_correct(self, word, test_pronunciation):
-        correct_pronuns = self.data_loader.pronunciations(word)
-        for correct_pronun in correct_pronuns:
-            if count_phonemes_with_emphasis(test_pronunciation) == count_phonemes_with_emphasis(correct_pronun):
-                return True
-        return False
-
-    def evaluate(self, prediction_model):
-        test_example_count = len(self.char_input_test)
+    def evaluate(self):
         correct_syllable_counts = 0
         perfect_predictions = 0
+        index = 0
+        for i in tqdm(range(len(self.data_provider.evaluation_dict_length))):
+            word = self.data_provider.evaluation_dict.keys()[i]
+            predict_pronunciation = self.model.model.predict(word)
+            if self.data_provider.is_correct(word, predict_pronunciation):
+                correct_syllable_counts += 1
+                perfect_predictions += 1
+            elif self.data_provider.is_syllable_correct(word, predict_pronunciation):
+                correct_syllable_counts += 1
+            index += 1
 
-        for example_idx in tqdm(range(test_example_count)):
-            example_char_seq = self.char_input_test[example_idx:example_idx + 1]
-            predicted_pronun = prediction_model.predict_from_char_ids(example_char_seq)
-            example_word = self.data_loader.id_vec_to_word(example_char_seq)
-
-            perfect_predictions += self.is_correct(example_word, predicted_pronun)
-            correct_syllable_counts += self.is_syllable_count_correct(example_word, predicted_pronun)
-
-        syllable_acc = correct_syllable_counts / test_example_count
-        perfect_acc = perfect_predictions / test_example_count
+        syllable_acc = correct_syllable_counts / self.data_provider.evaluation_dict_length
+        perfect_acc = perfect_predictions / self.data_provider.evaluation_dict_length
 
         print('Syllable Accuracy: {}%'.format(round(syllable_acc * 100, 1)))
         print('Perfect Accuracy: {}%'.format(round(perfect_acc * 100, 1)))
 
 
 if __name__ == '__main__':
-    choice = input('This will rewrite the current model and take up to 2 hour(i7-6700 with GTX1070)! Proceed?[y/N]')
-    if choice is not 'y' or 'Y':
+    choice = input('This will rewrite the current model and take up to 2 hours(i7-6700 with GTX1070)! Proceed?[y/N]')
+    if choice not in ['y', 'Y']:
         exit(0)
     # Training
     model = PredictionModel()
-    model.training_model.summary()
-    model_trainer = PredictionModelTrainer()
-    model_trainer.train(model, PREDICTION_MODEL_WEIGHTS_PATH)
+    model.summary()
+    model_trainer = PredictionModelTrainer(model)
+    model_trainer.train()
 
     # Evaluation
-    model.load_weights(PREDICTION_MODEL_WEIGHTS_PATH)
-    model_trainer.evaluate(model)
+    model_trainer.evaluate()
