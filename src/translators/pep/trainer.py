@@ -5,6 +5,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping
 from translators.pep.constants import PREDICTION_MODEL_WEIGHTS_PATH
 from translators.pep.data_provider import PronunciationDataProvider
 from translators.pep.model import PredictionModel
+from translators.pep.types import Pronunciation
 
 
 class PredictionModelTrainer:
@@ -31,7 +32,7 @@ class PredictionModelTrainer:
               ):
         self.model.model.compile(loss=loss, optimizer=optimizer)
 
-        self.x_train, self.y_train = self.data_provider.get_train()
+        self.x_train, self.y_train = self.data_provider.train_dict.kvnarray
         checkpoint = ModelCheckpoint(filepath=PREDICTION_MODEL_WEIGHTS_PATH,
                                      verbose=check_point_verbose,
                                      save_best_only=True)
@@ -61,18 +62,19 @@ class PredictionModelTrainer:
         correct_syllable_counts = 0
         perfect_predictions = 0
         index = 0
-        for i in tqdm(range(len(self.data_provider.evaluation_dict_length))):
+        for i in tqdm(range(len(self.data_provider.evaluation_dict))):
             word = self.data_provider.evaluation_dict.keys()[i]
-            predict_pronunciation = self.model.model.predict(word)
-            if self.data_provider.is_correct(word, predict_pronunciation):
+            predict_pronunciation = Pronunciation(self.model.model.predict(word.one_hot))
+            real_pronunciation = self.data_provider.evaluation_dict[self.data_provider.evaluation_dict.keys()[i]]
+            if predict_pronunciation.equal(real_pronunciation):
                 correct_syllable_counts += 1
                 perfect_predictions += 1
-            elif self.data_provider.is_syllable_correct(word, predict_pronunciation):
+            elif predict_pronunciation.syllable_equal(real_pronunciation):
                 correct_syllable_counts += 1
             index += 1
 
-        syllable_acc = correct_syllable_counts / self.data_provider.evaluation_dict_length
-        perfect_acc = perfect_predictions / self.data_provider.evaluation_dict_length
+        syllable_acc = correct_syllable_counts / self.data_provider.evaluation_dict.__len__()
+        perfect_acc = perfect_predictions / self.data_provider.evaluation_dict.__len__()
 
         print('Syllable Accuracy: {}%'.format(round(syllable_acc * 100, 1)))
         print('Perfect Accuracy: {}%'.format(round(perfect_acc * 100, 1)))
@@ -84,9 +86,10 @@ if __name__ == '__main__':
         exit(0)
     # Training
     model = PredictionModel()
-    model.summary()
+    model.model.summary()
     model_trainer = PredictionModelTrainer(model)
     model_trainer.train()
+    model_trainer.graph_train_history('acc','val_acc')
 
     # Evaluation
     model_trainer.evaluate()
