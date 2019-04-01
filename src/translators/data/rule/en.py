@@ -1,8 +1,9 @@
 from string import digits
 
-from translators.pep.api import PhoneticDictionary
+from big_phoney import PhoneticDictionary, PredictionModel
 
 phonetic_dict = PhoneticDictionary()
+pred_model = PredictionModel()
 remove_digits = str.maketrans('', '', digits)  # Remove stress levels from big_phoney's results
 
 
@@ -13,7 +14,11 @@ def lookup_or_predict(word):
     :param word:
     :return:
     """
-    result = phonetic_dict.lookup_or_predict(word).translate(remove_digits).split(' ')
+    result = phonetic_dict.lookup(word)
+    if result:
+        result = result.translate(remove_digits).split(' ')
+    else:
+        result = pred_model.predict(word).translate(remove_digits).split(' ')
     # Transform "OY" (written as "oi" in "boy") into a sequence of "OW" "IH"
     while result.count('OY'):
         pos = result.index('OY')
